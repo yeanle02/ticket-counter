@@ -1,8 +1,12 @@
 import React from "react";
 import CustomerView from "../components/CustomerView";
 import Counter from '../components/Counter';
+import ManagerView from "../components/ManagerView";
 
-
+/**
+ * Providing service for all the tickets
+ * @returns 
+ */
 const TicketService = () =>{
     const [lastTicket,setLastTicket] = React.useState(0);
     const [nowServing,setNowServing] = React.useState(null);
@@ -12,7 +16,9 @@ const TicketService = () =>{
         {id:2,currentServing : null,isOnline:true },
         {id:3,currentServing : null,isOnline:true },
     ]);
+    const [view,setView]= React.useState("customer");
 
+    //function for customer to take a ticket
     const takeTicket = () =>{
         const newTicket = (lastTicket|0) + 1;
         console.log('newTicket',newTicket);
@@ -23,6 +29,7 @@ const TicketService = () =>{
     }
 
 
+    //function for manager to serve the next ticket in the queue
     const serveTicket = (counterId)=>{
         if(queue.length >0){
             const nextTicket = queue.shift();
@@ -36,13 +43,24 @@ const TicketService = () =>{
         }
     };
 
+    
+
     return(
         <div>
-            <CustomerView 
+            <button onClick={() => setView(view === "customer" ? "manager" : "customer")}>
+                Switch to {view === "customer" ? "Manager" : "Customer"} View
+            </button>
+            {view === 'customer' ?(<CustomerView 
             nowServing={nowServing}
             lastTicket={lastTicket}
-            takeTicket={takeTicket}/>
+            takeTicket={takeTicket}/>):(
+                    <ManagerView 
+                    counters={counters}
+                    serveTicket={serveTicket}
+                    />
 
+            )}
+  
             <div style={{ display: 'flex', justifyContent: 'space-around' }}>
                 {counters.map(counter => (
                 <Counter
@@ -51,10 +69,11 @@ const TicketService = () =>{
                     isOnline={counter.isOnline}
                     currentServing={counter.currentServing}
                     onServeNext={serveTicket}
+                    isManager={view ==="manager"}
                 />
                 ))}
-            </div>
+          </div>
         </div>
-    )
-}
+    );
+};
 export default TicketService;
